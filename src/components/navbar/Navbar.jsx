@@ -3,14 +3,33 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
-import { CarRental, CarRepair, Phone } from "@mui/icons-material";
+import { Link, useNavigate } from "react-router-dom";
+import { CarRental, Dashboard } from "@mui/icons-material";
+
+// Import the auth context
+import { useAuth } from "../../App"; // Adjust path as needed
 
 // API base URL - replace with your actual API endpoint
 const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
+// Private Route Component
+const PrivateRoute = ({ children, requiredRole = null }) => {
+  const { isSignedIn, user } = useAuth();
+  
+  if (!isSignedIn) {
+    return <Navigate to="/" replace />;
+  }
+  
+  if (requiredRole && user?.status !== requiredRole) {
+    toast.error("You don't have permission to access this page");
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
 // AuthModal Component
-const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
+const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,6 +39,8 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const isLogin = type === "login";
 
@@ -30,6 +51,7 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
         email: "",
         password: "",
         name: "",
+        phone: "",
         confirmPassword: "",
       });
       setErrors({});
@@ -50,10 +72,14 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    if (!formData.phone) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = "Phone number must be 10 digits";
+
+    // Only validate phone for registration, not login
+    if (!isLogin) {
+      if (!formData.phone) {
+        newErrors.phone = "Phone number is required";
+      } else if (!/^\d{10}$/.test(formData.phone)) {
+        newErrors.phone = "Phone number must be 10 digits";
+      }
     }
 
     if (!isLogin) {
@@ -90,14 +116,18 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form submitted", formData);
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      console.log("Validation failed", errors);
+      return;
+    }
 
     setIsLoading(true);
 
     try {
       // In a real application, you would send this data to your backend API
-      const endpoint = isLogin ? "/posts" : "/posts"; // Using JSONPlaceholder test endpoints
+      const endpoint = isLogin ? "/posts" : "/posts";
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
@@ -108,26 +138,66 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
           email: formData.email,
           password: formData.password,
           name: formData.name,
+          phone: formData.phone,
         }),
       });
 
-      // Simulate API response - in a real app, your backend would return user data and tokens
       if (isLogin) {
-        // For demo purposes, we'll randomly assign user or admin status
-        const status = Math.random() > 0.5 ? "admin" : "user";
-        onSuccess("mock-jwt-token", status);
+        // Check for specific login credentials and determine user status
+        let userStatus = "user"; // Default status
+        
+        if (formData.email === "admin@example.com" && formData.password === "admin123") {
+          userStatus = "admin";
+        } else if (formData.email === "user@example.com" && formData.password === "user123") {
+          userStatus = "user";
+        } else {
+          // For demo purposes, assign random status for other users
+          userStatus = Math.random() > 0.5 ? "admin" : "user";
+        }
+
+        // Create user data object
+        const userData = {
+          email: formData.email,
+          status: userStatus,
+          name: formData.name || formData.email.split('@')[0], // Use name or extract from email
+          phone: formData.phone || "Not provided"
+        };
+
+        // Sign in using the auth context
+        signIn(userData);
+        
+        // Show success message
+        toast.success(`Welcome back, ${userData.name}!`);
+        
+        // Redirect based on user status
+        setTimeout(() => {
+          if (userStatus === "admin") {
+            navigate("/dashboard");
+          } else {
+            navigate("/");
+          }
+        }, 1000);
+
       } else {
-        onSuccess();
+        // Registration logic
+        toast.success("Registration successful! Please login.");
+        
+        // Reset form
+        setFormData({
+          email: "",
+          password: "",
+          name: "",
+          phone: "",
+          confirmPassword: "",
+        });
+
+        // Switch to login modal
+        onClose();
+        setTimeout(() => {
+          onToggleModal("login");
+        }, 300);
       }
 
-      // Reset form
-      setFormData({
-        email: "",
-        password: "",
-        name: "",
-        phone: "",
-        confirmPassword: "",
-      });
     } catch (error) {
       console.error("Authentication error:", error);
       toast.error(
@@ -147,6 +217,8 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
     }, 300);
   };
 
+  if (!isOpen) return null;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -156,7 +228,7 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black overflow-y-auto text-black bg-opacity-50 z-50 flex justify-center items-center p-4"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4"
             onClick={onClose}
           >
             <motion.div
@@ -164,17 +236,17 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden"
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 overflow-y-auto md:mt-18">
-                <div className="flex justify-between overflow-y-auto items-center mb-6">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-800">
                     {isLogin ? "Login to Your Account" : "Create an Account"}
                   </h2>
                   <button
                     onClick={onClose}
-                    className="bg-gradient-to-b from-red-400 to-red-500"
+                    className="text-gray-500 hover:text-gray-700 transition duration-300"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -193,10 +265,22 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
                   </button>
                 </div>
 
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4 text-black overflow-y-auto"
-                >
+                {/* Demo credentials info */}
+                {isLogin && (
+                  <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-700 font-medium">
+                      Demo Credentials:
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      Admin: admin@example.com / admin123
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      User: user@example.com / user123
+                    </p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4 text-black overflow-y-auto">
                   {!isLogin && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -316,86 +400,90 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Telephone
-                    </label>
-                    <div className="relative">
-                       <span className="absolute left-3 top-3 text-gray-400">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-    />
-  </svg>
-</span>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className={`pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 ${
-                          errors.phone ? "border-red-500" : "border-gray-300"
-                        }`}
-                        placeholder="Enter your phone number"
-                      />
-                    </div>
-                    {errors.phone && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
-
                   {!isLogin && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-3 text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                            />
-                          </svg>
-                        </span>
-                        <input
-                          type="password"
-                          name="confirmPassword"
-                          value={formData.confirmPassword}
-                          onChange={handleChange}
-                          className={`pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 ${
-                            errors.confirmPassword
-                              ? "border-red-500"
-                              : "border-gray-300"
-                          }`}
-                          placeholder="Confirm your password"
-                        />
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-3 text-gray-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                              />
+                            </svg>
+                          </span>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className={`pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 ${
+                              errors.phone
+                                ? "border-red-500"
+                                : "border-gray-300"
+                            }`}
+                            placeholder="Enter your phone number"
+                          />
+                        </div>
+                        {errors.phone && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.phone}
+                          </p>
+                        )}
                       </div>
-                      {errors.confirmPassword && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.confirmPassword}
-                        </p>
-                      )}
-                    </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Confirm Password
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-3 text-gray-400">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                              />
+                            </svg>
+                          </span>
+                          <input
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            className={`pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 ${
+                              errors.confirmPassword
+                                ? "border-red-500"
+                                : "border-gray-300"
+                            }`}
+                            placeholder="Confirm your password"
+                          />
+                        </div>
+                        {errors.confirmPassword && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.confirmPassword}
+                          </p>
+                        )}
+                      </div>
+                    </>
                   )}
 
                   {isLogin && (
@@ -410,7 +498,7 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
                         </span>
                       </label>
                       <Link
-                        to={"#"}
+                        to="#"
                         className="text-sm text-indigo-600 hover:text-indigo-500"
                       >
                         Forgot password?
@@ -421,7 +509,7 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition duration-300 shadow-md flex justify-center items-center"
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition duration-300 shadow-md flex justify-center items-center disabled:opacity-50"
                   >
                     {isLoading ? (
                       <>
@@ -460,7 +548,7 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
                       : "Already have an account? "}
                     <button
                       onClick={handleToggleClick}
-                      className="bg-gradient-to-b from-blue-400 to-violet-400 font-medium hover:text-indigo-500"
+                      className="bg-gradient-to-b from-red-200 to-indigo-300 font-medium"
                     >
                       {isLogin ? "Sign up" : "Sign in"}
                     </button>
@@ -484,11 +572,11 @@ const AuthModal = ({ type, isOpen, onClose, onSuccess, onToggleModal }) => {
 
 // Navigation Bar Component
 export const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userStatus, setUserStatus] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, isSignedIn, signOut } = useAuth();
 
   // Navigation links object
   const navLinks = [
@@ -532,7 +620,6 @@ export const Navbar = () => {
         </svg>
       ),
     },
-
     {
       name: "Products",
       path: "/products",
@@ -573,7 +660,6 @@ export const Navbar = () => {
         </svg>
       ),
     },
-
     {
       name: "Testimonials",
       path: "/testimonials",
@@ -616,49 +702,19 @@ export const Navbar = () => {
     },
   ];
 
-  // Check if user is logged in on component mount
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const status = localStorage.getItem("userStatus");
-
-    if (token && status) {
-      setIsLoggedIn(true);
-      setUserStatus(status);
-    }
-  }, []);
-
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userStatus");
-    setIsLoggedIn(false);
-    setUserStatus(null);
+    signOut();
+    setMobileMenuOpen(false);
     toast.success("Logged out successfully!");
   };
 
-  const handleLoginSuccess = (token, status) => {
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("userStatus", status);
-    setIsLoggedIn(true);
-    setUserStatus(status);
-    setShowLoginModal(false);
-
-    toast.success("Login successful!");
-  };
-
-  const handleRegisterSuccess = () => {
-    setShowRegisterModal(false);
-    toast.success("Registration successful! Please login.");
-    setShowLoginModal(true);
-  };
-
   const redirectToDashboard = () => {
-    if (userStatus === "admin") {
-      // In a real app, this would navigate to admin dashboard
-      alert("Redirecting to Admin Dashboard");
-    } else if (userStatus === "user") {
-      // In a real app, this would navigate to user dashboard
-      alert("Redirecting to User Dashboard");
+    if (user?.status === "admin") {
+      navigate("/dashboard");
+    } else {
+      toast.info("You need admin privileges to access the dashboard");
     }
+    setMobileMenuOpen(false);
   };
 
   const handleToggleModal = (modalType) => {
@@ -673,7 +729,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="w-full bg-gradient-to-r from-indigo-400 to-purple-400 shadow-lg">
+      <nav className="w-full bg-gradient-to-r text-black from-indigo-600 to-purple-600 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -698,42 +754,35 @@ export const Navbar = () => {
                 </Link>
               ))}
 
-              {isLoggedIn ? (
+              {isSignedIn ? (
                 <div className="flex items-center space-x-2">
-                  <button
-                    onClick={redirectToDashboard}
-                    className="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                  <div className="text-white text-sm mr-2">
+                    Welcome, {user?.name || user?.email}
+                  </div>
+                  {user?.status === "admin" && (
+                    <button
+                      onClick={redirectToDashboard}
+                      className="bg-gradient-to-b from-blue-400 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                    Dashboard
-                  </button>
+                      <Dashboard/>
+                      Dashboard
+                    </button>
+                  )}
                   <button
                     onClick={handleLogout}
-                    className="bg-transparent border border-white text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    className="bg-transparent border bg-gradient-to-l from-blue-400 to-violet-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 mr-1"
-                      fill="none"
+                      fill="none"                     
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        className='text-green-500 font-bold'
                         strokeWidth={2}
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                       />
@@ -745,7 +794,7 @@ export const Navbar = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-gradient-to-l from-blue-600 to-violet-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    className="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -765,7 +814,7 @@ export const Navbar = () => {
                   </button>
                   <button
                     onClick={() => setShowRegisterModal(true)}
-                    className="bg-gradient-to-r from-blue-600 to-violet-600 border border-white text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    className="bg-transparent border border-white text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -844,38 +893,44 @@ export const Navbar = () => {
                   <Link
                     key={index}
                     to={link.path}
-                    className="text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-600 items-center"
+                    className="text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     {link.icon}
-                    {link.name}
+                    <span className="ml-2">{link.name}</span>
                   </Link>
                 ))}
 
-                {isLoggedIn ? (
+                {isSignedIn ? (
                   <>
-                    <button
-                      onClick={redirectToDashboard}
-                      className="w-full text-left text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-600 items-center"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                    <div className="px-3 py-2 text-white text-sm border-t border-indigo-600">
+                      Welcome, {user?.name || user?.email}
+                    </div>
+                    {user?.status === "admin" && (
+                      <button
+                        onClick={redirectToDashboard}
+                        className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                        />
-                      </svg>
-                      Dashboard
-                    </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 mr-2"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                          />
+                        </svg>
+                        Dashboard
+                      </button>
+                    )}
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-600 items-center"
+                      className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -901,7 +956,7 @@ export const Navbar = () => {
                         setShowLoginModal(true);
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full text-left text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-600 items-center"
+                      className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -924,7 +979,7 @@ export const Navbar = () => {
                         setShowRegisterModal(true);
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full text-left text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-600 items-center"
+                      className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -955,7 +1010,6 @@ export const Navbar = () => {
         type="login"
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        onSuccess={handleLoginSuccess}
         onToggleModal={handleToggleModal}
       />
 
@@ -964,9 +1018,21 @@ export const Navbar = () => {
         type="register"
         isOpen={showRegisterModal}
         onClose={() => setShowRegisterModal(false)}
-        onSuccess={handleRegisterSuccess}
         onToggleModal={handleToggleModal}
+      />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
       />
     </>
   );
 };
+

@@ -15,11 +15,15 @@ import {
   FaGasPump,
   FaTachometerAlt,
   FaCarSide,
+  FaArrowLeft,
+  FaArrowRight as FaArrowRightIcon,
 } from "react-icons/fa";
 
 export const NewFeatures = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFeature, setSelectedFeature] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   const categories = [
     { id: "all", name: "All Features", icon: <FaCar /> },
@@ -48,7 +52,6 @@ export const NewFeatures = () => {
       ],
       availableIn: ["BMW X7", "Mercedes S-Class", "Genesis GV80"],
     },
-
     {
       id: 2,
       title: "Biometric Vehicle Access",
@@ -89,12 +92,138 @@ export const NewFeatures = () => {
       ],
       availableIn: ["Mercedes E-Class", "BMW 7 Series", "Audi A6"],
     },
+    {
+      id: 4,
+      title: "Autonomous Driving",
+      category: "technology",
+      description:
+        "Level 4 autonomous driving capability for hands-free highway driving.",
+      longDescription:
+        "This advanced autonomous system allows for completely hands-free driving on approved highways. The vehicle can navigate, change lanes, and handle complex traffic situations without driver intervention.",
+      image:
+        "https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      icon: <FaCarSide />,
+      status: "new",
+      releaseDate: "2025-07-15",
+      benefits: [
+        "Reduces driver fatigue on long trips",
+        "Enhanced safety through predictive algorithms",
+        "Optimized traffic flow and fuel efficiency",
+      ],
+      availableIn: ["Tesla Model S", "Audi A8", "BMW i7"],
+    },
+    {
+      id: 5,
+      title: "Predictive Suspension",
+      category: "comfort",
+      description:
+        "Camera-based system that scans the road ahead and adjusts suspension in real-time.",
+      longDescription:
+        "Using forward-facing cameras and sensors, this system scans the road surface ahead and adjusts the suspension to prepare for bumps, potholes, and other road imperfections before the wheels encounter them.",
+      image:
+        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      icon: <FaTachometerAlt />,
+      status: "updated",
+      releaseDate: "2025-04-10",
+      benefits: [
+        "Superior ride comfort on all road surfaces",
+        "Reduced wear on suspension components",
+        "Enhanced vehicle stability and control",
+      ],
+      availableIn: ["Mercedes S-Class", "Range Rover", "Porsche Cayenne"],
+    },
+    {
+      id: 6,
+      title: "Solar Roof",
+      category: "technology",
+      description:
+        "Integrated solar panels that extend electric range and power auxiliary systems.",
+      longDescription:
+        "The vehicle's roof is equipped with high-efficiency solar cells that can generate enough electricity to add meaningful range to electric vehicles or power auxiliary systems in conventional vehicles, reducing the load on the alternator.",
+      image:
+        "https://images.unsplash.com/photo-1621831309785-850772ae8255?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      icon: <FaBolt />,
+      status: "new",
+      releaseDate: "2025-08-20",
+      benefits: [
+        "Extended range for electric vehicles",
+        "Reduced fuel consumption for hybrid vehicles",
+        "Power for camping and auxiliary uses",
+      ],
+      availableIn: ["Hyundai Sonata Hybrid", "Toyota bZ4X", "Fisker Ocean"],
+    },
+    {
+      id: 7,
+      title: "Advanced Driver Monitoring",
+      category: "technology",
+      description:
+        "Infrared cameras track driver attention and alertness to prevent accidents.",
+      longDescription:
+        "Using infrared cameras and AI algorithms, this system continuously monitors the driver's eye movements, head position, and facial expressions to detect signs of distraction, fatigue, or impairment, issuing warnings or taking corrective action when needed.",
+      image:
+        "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      icon: <FaShieldAlt />,
+      status: "updated",
+      releaseDate: "2025-03-05",
+      benefits: [
+        "Reduces accidents caused by distracted driving",
+        "Early detection of driver fatigue",
+        "Customizable alert preferences",
+      ],
+      availableIn: ["Subaru Outback", "Ford Mustang Mach-E", "GM Super Cruise vehicles"],
+    },
+    {
+      id: 8,
+      title: "Vehicle-to-Everything (V2X) Communication",
+      category: "technology",
+      description:
+        "Enables communication with other vehicles, infrastructure, and the grid.",
+      longDescription:
+        "V2X technology allows your vehicle to communicate with other vehicles (V2V), infrastructure (V2I), pedestrians (V2P), and the grid (V2G). This enables advanced safety features, optimized routing, and energy management capabilities.",
+      image:
+        "https://images.unsplash.com/photo-1535223289827-42f1e9919769?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      icon: <FaSatellite />,
+      status: "coming-soon",
+      releaseDate: "2025-12-01",
+      benefits: [
+        "Enhanced situational awareness beyond line of sight",
+        "Optimized traffic flow and reduced congestion",
+        "Energy grid stabilization capabilities",
+      ],
+      availableIn: ["Audi e-tron", "Ford F-150 Lightning", "BMW iX"],
+    },
+    {
+      id: 9,
+      title: "Advanced Parking Assist",
+      category: "technology",
+      description:
+        "Fully automated parking with remote control via smartphone app.",
+      longDescription:
+        "This system can autonomously park the vehicle in both parallel and perpendicular spaces without a driver inside. Using smartphone connectivity, you can initiate parking from outside the vehicle and monitor the process through the app.",
+      image:
+        "https://images.unsplash.com/photo-1485291571150-772bcfc10da5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      icon: <FaCog />,
+      status: "new",
+      releaseDate: "2025-05-30",
+      benefits: [
+        "Eliminates stress from tight parking spaces",
+        "Prevents door dings in crowded lots",
+        "Remote parking capability",
+      ],
+      availableIn: ["BMW 7 Series", "Mercedes EQS", "Genesis GV60"],
+    },
   ];
 
   const filteredFeatures =
     activeCategory === "all"
       ? carFeatures
       : carFeatures.filter((feature) => feature.category === activeCategory);
+
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredFeatures.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredFeatures.length / itemsPerPage);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -106,6 +235,23 @@ export const NewFeatures = () => {
         return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setActiveCategory(categoryId);
+    setCurrentPage(1); // Reset to first page when category changes
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -149,7 +295,7 @@ export const NewFeatures = () => {
                     ? "bg-gradient-to-l from-indigo-400 to-violet-300 text-white"
                     : "bg-gradient-to-r from-blue-300 to-indigo-300"
                 }`}
-                onClick={() => setActiveCategory(category.id)}
+                onClick={() => handleCategoryChange(category.id)}
               >
                 <span className="mr-2">{category.icon}</span>
                 {category.name}
@@ -158,8 +304,8 @@ export const NewFeatures = () => {
           </motion.div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {filteredFeatures.map((feature, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            {currentItems.map((feature, index) => (
               <motion.div
                 key={feature.id}
                 className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer"
@@ -215,6 +361,44 @@ export const NewFeatures = () => {
             ))}
           </div>
 
+          {/* Pagination Controls */}
+          {filteredFeatures.length > itemsPerPage && (
+            <motion.div 
+              className="flex justify-center items-center gap-4 mb-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <button
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                className={`flex items-center px-4 py-2 rounded-full ${
+                  currentPage === 1
+                    ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                    : "bg-gradient-to-r from-blue-300 to-indigo-300 hover:from-blue-400 hover:to-indigo-400 text-white"
+                }`}
+              >
+                <FaArrowLeft className="mr-2" /> Previous
+              </button>
+              
+              <span className="text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              
+              <button
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+                className={`flex items-center px-4 py-2 rounded-full ${
+                  currentPage === totalPages
+                    ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                    : "bg-gradient-to-r from-blue-300 to-indigo-300 hover:from-blue-400 hover:to-indigo-400 text-white"
+                }`}
+              >
+                Next <FaArrowRightIcon className="ml-2" />
+              </button>
+            </motion.div>
+          )}
+
           {/* CTA Section */}
           <motion.div
             className="bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-2xl p-8 md:p-12 text-center"
@@ -229,7 +413,6 @@ export const NewFeatures = () => {
               Visit our showroom to experience these cutting-edge features
               firsthand.
             </p>
-
           </motion.div>
         </div>
 
