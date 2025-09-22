@@ -487,8 +487,8 @@ export const Products = () => {
             disabled={currentPage === 1}
             className={`px-4 py-2 rounded-md ${
               currentPage === 1
-                ? "bg-gray-200 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gradient-to-b from-blue-400 to-blue-600 cursor-not-allowed"
+                : "bg-gradient-to-l from-violet-400 to-black"
             }`}
           >
             Previous
@@ -513,8 +513,8 @@ export const Products = () => {
             disabled={currentPage === totalPages}
             className={`px-4 py-2 rounded-md ${
               currentPage === totalPages
-                ? "bg-gray-200 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gradient-to-b from-blue-400 to-blue-600 cursor-not-allowed"
+                : "bg-gradient-to-l from-violet-300 to-indigo-400 "
             }`}
           >
             Next
