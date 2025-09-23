@@ -21,7 +21,12 @@ import { Testimonials } from "./pages/testimony/Testimony";
 import { FAQ } from "./components/faq/FAQ";
 import { Dashboard } from "./components/dashboard/admin/index/Dashboard";
 import { UserManagement } from "./components/dashboard/admin/management/UserManagement";
-import { SettingsApp } from "./components/dashboard/admin/settings/Settings";
+import { Settings } from "./components/dashboard/admin/settings/Settings";
+import { CarsDashboard } from "./components/dashboard/admin/management/CarsManagement";
+import { ContactManagement } from "./components/dashboard/admin/management/ContactManagement";
+import { TestimonyManagement } from "./components/dashboard/admin/management/TestimonyManagement";
+import { PaymentManagement } from "./components/dashboard/admin/management/PaymentManagement";
+import { SubscriptionManagement } from "./components/dashboard/admin/management/SubscriptionManagement";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -39,10 +44,10 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is signed in on app load (from localStorage)
-    const savedUser = localStorage.getItem('user');
-    const savedAuthStatus = localStorage.getItem('isSignedIn');
-    
-    if (savedUser && savedAuthStatus === 'true') {
+    const savedUser = localStorage.getItem("user");
+    const savedAuthStatus = localStorage.getItem("isSignedIn");
+
+    if (savedUser && savedAuthStatus === "true") {
       setUser(JSON.parse(savedUser));
       setIsSignedIn(true);
     }
@@ -51,15 +56,15 @@ const AuthProvider = ({ children }) => {
   const signIn = (userData) => {
     setUser(userData);
     setIsSignedIn(true);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('isSignedIn', 'true');
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("isSignedIn", "true");
   };
 
   const signOut = () => {
     setUser(null);
     setIsSignedIn(false);
-    localStorage.removeItem('user');
-    localStorage.removeItem('isSignedIn');
+    localStorage.removeItem("user");
+    localStorage.removeItem("isSignedIn");
   };
 
   return (
@@ -73,7 +78,7 @@ const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -95,29 +100,69 @@ export default function App() {
           <Route path="/faq" element={<FAQ />} />
 
           {/* Private Routes */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <PrivateRoute>
                 <Dashboard />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/dashboard/users" 
+          <Route
+            path="/dashboard/users"
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <UserManagement />
-              </PrivateRoute>
-            } 
+              // </PrivateRoute>
+            }
           />
-          <Route 
-            path="/dashboard/settings" 
+          <Route
+            path="/dashboard/settings"
             element={
-              <PrivateRoute>
-                <SettingsApp />
-              </PrivateRoute>
-            } 
+              // <PrivateRoute>
+              <Settings />
+              // </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/cars"
+            element={
+              // <PrivateRoute>
+              <CarsDashboard />
+              // </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/contacts"
+            element={
+              // <PrivateRoute>
+              <ContactManagement />
+              // </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/testimony"
+            element={
+              // <PrivateRoute>
+              <TestimonyManagement />
+              // </PrivateRoute>
+            }
+          />
+                    <Route
+            path="/dashboard/payment"
+            element={
+              // <PrivateRoute>
+              <PaymentManagement />
+              // </PrivateRoute>
+            }
+          />
+                              <Route
+            path="/dashboard/subscription"
+            element={
+              // <PrivateRoute>
+              <SubscriptionManagement />
+              // </PrivateRoute>
+            }
           />
         </Routes>
         <Footer />
