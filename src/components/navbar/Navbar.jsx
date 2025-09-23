@@ -794,7 +794,7 @@ export const Navbar = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    className="bg-gradient-to-l from-indigo-400 to-blue-500 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -814,7 +814,7 @@ export const Navbar = () => {
                   </button>
                   <button
                     onClick={() => setShowRegisterModal(true)}
-                    className="bg-transparent border border-white text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    className="bg-transparent border bg-gradient-to-b from-blue-500 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -956,7 +956,7 @@ export const Navbar = () => {
                         setShowLoginModal(true);
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
+                      className="w-full text-left bg-gradient-to-b from-blue-400 to-indigo-300 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -979,7 +979,7 @@ export const Navbar = () => {
                         setShowRegisterModal(true);
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
+                      className="w-full text-left bg-gradient-to-b from-indigo-400 to-blue-500 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
