@@ -27,6 +27,7 @@ import { ContactManagement } from "./components/dashboard/admin/management/Conta
 import { TestimonyManagement } from "./components/dashboard/admin/management/TestimonyManagement";
 import { PaymentManagement } from "./components/dashboard/admin/management/PaymentManagement";
 import { SubscriptionManagement } from "./components/dashboard/admin/management/SubscriptionManagement";
+import { UserDashboard } from "./components/dashboard/users/index/UserDashboard";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -101,15 +102,23 @@ export default function App() {
 
           {/* Private Routes */}
           <Route
-            path="/dashboard"
+            path="/728289/292jh020-7"
             element={
               <PrivateRoute>
                 <Dashboard />
               </PrivateRoute>
             }
           />
+                    <Route
+            path="/02jw829/29910"
+            element={
+              <PrivateRoute>
+                <UserDashboard />
+              </PrivateRoute>
+            }
+          />
           <Route
-            path="/dashboard/users"
+            path="/dashboard/78292"
             element={
               // <PrivateRoute>
                 <UserManagement />
@@ -117,7 +126,7 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/settings"
+            path="/dashboard/02000"
             element={
               // <PrivateRoute>
               <Settings />
@@ -125,7 +134,7 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/cars"
+            path="/dashboard/7281/191"
             element={
               // <PrivateRoute>
               <CarsDashboard />
@@ -133,7 +142,7 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/contacts"
+            path="/dashboard/72891"
             element={
               // <PrivateRoute>
               <ContactManagement />
@@ -141,7 +150,7 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/testimony"
+            path="/dashboard/728981"
             element={
               // <PrivateRoute>
               <TestimonyManagement />

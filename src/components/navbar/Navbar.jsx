@@ -708,14 +708,20 @@ export const Navbar = () => {
     toast.success("Logged out successfully!");
   };
 
-  const redirectToDashboard = () => {
-    if (user?.status === "admin") {
-      navigate("/dashboard");
-    } else {
+const redirectToDashboard = () => {
+  if (user?.status === "admin") {
+    navigate("/728289/292jh020-7");
+  } else {
+    if (user?.status === "user") {
       toast.info("You need admin privileges to access the dashboard");
+      navigate('/02jw829/29910');
+    } else {
+      toast.info("Oops sorry, your request doesn't match any!!");
+      navigate('/');
     }
-    setMobileMenuOpen(false);
-  };
+  }
+  setMobileMenuOpen(false);
+};
 
   const handleToggleModal = (modalType) => {
     if (modalType === "login") {
@@ -906,7 +912,7 @@ export const Navbar = () => {
                     <div className="px-3 py-2 text-white text-sm border-t border-indigo-600">
                       Welcome, {user?.name || user?.email}
                     </div>
-                    {user?.status === "admin" && (
+                    {user?.status === "admin" || user?.status === "user" && (
                       <button
                         onClick={redirectToDashboard}
                         className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"

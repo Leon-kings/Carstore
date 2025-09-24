@@ -141,7 +141,7 @@ export const NewFeatures = () => {
       longDescription:
         "The vehicle's roof is equipped with high-efficiency solar cells that can generate enough electricity to add meaningful range to electric vehicles or power auxiliary systems in conventional vehicles, reducing the load on the alternator.",
       image:
-        "https://images.unsplash.com/photo-1621831309785-850772ae8255?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        "https://imageio.forbes.com/specials-images/imageserve/63750a958cec3469a33650bd/2023-Toyota-Prius-hybrid-electric-car/960x0.jpg?format=jpg&width=960",
       icon: <FaBolt />,
       status: "new",
       releaseDate: "2025-08-20",
@@ -161,7 +161,7 @@ export const NewFeatures = () => {
       longDescription:
         "Using infrared cameras and AI algorithms, this system continuously monitors the driver's eye movements, head position, and facial expressions to detect signs of distraction, fatigue, or impairment, issuing warnings or taking corrective action when needed.",
       image:
-        "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        "https://www.embedded.com/wp-content/uploads/sites/2/2022/10/DMS-article-Theme-image-Mouser.jpg",
       icon: <FaShieldAlt />,
       status: "updated",
       releaseDate: "2025-03-05",
@@ -181,7 +181,7 @@ export const NewFeatures = () => {
       longDescription:
         "V2X technology allows your vehicle to communicate with other vehicles (V2V), infrastructure (V2I), pedestrians (V2P), and the grid (V2G). This enables advanced safety features, optimized routing, and energy management capabilities.",
       image:
-        "https://images.unsplash.com/photo-1535223289827-42f1e9919769?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        "https://www.qorvo.com/-/media/images/qorvopublic/blog/2021/v2x/2-connectedcar.jpg",
       icon: <FaSatellite />,
       status: "coming-soon",
       releaseDate: "2025-12-01",
@@ -201,7 +201,7 @@ export const NewFeatures = () => {
       longDescription:
         "This system can autonomously park the vehicle in both parallel and perpendicular spaces without a driver inside. Using smartphone connectivity, you can initiate parking from outside the vehicle and monitor the process through the app.",
       image:
-        "https://images.unsplash.com/photo-1485291571150-772bcfc10da5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+        "https://www.group1renault.co.za/blog/wp-content/uploads/one-pedal-to-park-assist-system-blogimage.jpg",
       icon: <FaCog />,
       status: "new",
       releaseDate: "2025-05-30",
