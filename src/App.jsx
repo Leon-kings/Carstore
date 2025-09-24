@@ -28,14 +28,27 @@ import { TestimonyManagement } from "./components/dashboard/admin/management/Tes
 import { PaymentManagement } from "./components/dashboard/admin/management/PaymentManagement";
 import { SubscriptionManagement } from "./components/dashboard/admin/management/SubscriptionManagement";
 import { UserDashboard } from "./components/dashboard/users/index/UserDashboard";
+import { toast } from "react-toastify";
+import { UndefinedPage } from "./notfound/Notfound";
+
 
 // Create Auth Context
 const AuthContext = createContext();
 
 // Private Route Component
-const PrivateRoute = ({ children }) => {
-  const { isSignedIn } = useAuth();
-  return isSignedIn ? children : <Navigate to="/" replace />;
+const PrivateRoute = ({ children, requiredRole = null }) => {
+  const { isSignedIn, user } = useAuth();
+  
+  if (!isSignedIn) {
+    return <Navigate to="/" replace />;
+  }
+  
+  if (requiredRole && user?.status !== requiredRole) {
+    toast.error("You don't have permission to access this page");
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
 };
 
 // Auth Provider Component
@@ -91,6 +104,7 @@ export default function App() {
         <Navbar />
         <Routes>
           {/* Public Routes */}
+          <Route path="*" element={<UndefinedPage />} />
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/services" element={<Services />} />

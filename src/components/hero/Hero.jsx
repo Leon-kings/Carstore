@@ -57,6 +57,7 @@ export const Hero = () => {
       image:
         "https://darwinproaero.com/cdn/shop/files/DarwinPROAudiRS7C8iMPsideskirts8377IMP_12_1000x1000.jpg?v=1753670367",
     },
+    
   };
 
   // Brands we serve
@@ -120,6 +121,14 @@ export const Hero = () => {
       title: "Audi RS7 Sportback",
       description:
         "Unleash the power of the Audi RS7 Sportback - where performance meets elegance",
+    },
+        {
+      id: "bugatti-chiron-profilee",
+      image:
+        "https://www.thedrive.com/wp-content/uploads/2022/12/21/bugatti-profilee-lead-image.jpg?quality=85",
+      title: "Bugatti Chiron Profilée",
+      description:
+        "Unleash the power of the Bugatti Chiron Profilée - where performance meets elegance",
     },
   ];
 

@@ -374,7 +374,7 @@ export const NewFeatures = () => {
                 disabled={currentPage === 1}
                 className={`flex items-center px-4 py-2 rounded-full ${
                   currentPage === 1
-                    ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                    ? "bg-gradient-to-r from-blue-100 to-indigo-200 hover:from-blue-400 hover:to-indigo-400"
                     : "bg-gradient-to-r from-blue-300 to-indigo-300 hover:from-blue-400 hover:to-indigo-400 text-white"
                 }`}
               >
@@ -390,7 +390,7 @@ export const NewFeatures = () => {
                 disabled={currentPage === totalPages}
                 className={`flex items-center px-4 py-2 rounded-full ${
                   currentPage === totalPages
-                    ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                    ? "bg-gradient-to-r from-blue-300 to-indigo-300 hover:from-blue-400 hover:to-indigo-400"
                     : "bg-gradient-to-r from-blue-300 to-indigo-300 hover:from-blue-400 hover:to-indigo-400 text-white"
                 }`}
               >

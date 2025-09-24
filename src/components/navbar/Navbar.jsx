@@ -3,18 +3,24 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { CarRental, Dashboard } from "@mui/icons-material";
+import { useAuth } from "../../App"; 
 
-// Import the auth context
-import { useAuth } from "../../App"; // Adjust path as needed
-
-// API base URL - replace with your actual API endpoint
 const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
 // Private Route Component
 const PrivateRoute = ({ children, requiredRole = null }) => {
-  const { isSignedIn, user } = useAuth();
+  const { isSignedIn, user, isLoading } = useAuth();
+  
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
   
   if (!isSignedIn) {
     return <Navigate to="/" replace />;
@@ -38,14 +44,13 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { signIn } = useAuth();
 
   const isLogin = type === "login";
 
   useEffect(() => {
-    // Reset form when modal type changes
     if (isOpen) {
       setFormData({
         email: "",
@@ -172,9 +177,9 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
         // Redirect based on user status
         setTimeout(() => {
           if (userStatus === "admin") {
-            navigate("/dashboard");
+            navigate("/728289/292jh020-7");
           } else {
-            navigate("/");
+            navigate("/02jw829/29910");
           }
         }, 1000);
 
@@ -576,7 +581,7 @@ export const Navbar = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, isSignedIn, signOut } = useAuth();
+  const { user, isSignedIn, signOut, isLoading } = useAuth();
 
   // Navigation links object
   const navLinks = [
@@ -708,20 +713,17 @@ export const Navbar = () => {
     toast.success("Logged out successfully!");
   };
 
-const redirectToDashboard = () => {
-  if (user?.status === "admin") {
-    navigate("/728289/292jh020-7");
-  } else {
-    if (user?.status === "user") {
-      toast.info("You need admin privileges to access the dashboard");
-      navigate('/02jw829/29910');
+  const redirectToDashboard = () => {
+    if (user?.status === "admin") {
+      navigate("/728289/292jh020-7");
+    } else if (user?.status === "user") {
+      navigate("/02jw829/29910");
     } else {
       toast.info("Oops sorry, your request doesn't match any!!");
       navigate('/');
     }
-  }
-  setMobileMenuOpen(false);
-};
+    setMobileMenuOpen(false);
+  };
 
   const handleToggleModal = (modalType) => {
     if (modalType === "login") {
@@ -733,6 +735,25 @@ const redirectToDashboard = () => {
     }
   };
 
+  // Show loading state while authentication is being checked
+  if (isLoading) {
+    return (
+      <nav className="w-full bg-gradient-to-r text-black from-indigo-600 to-purple-600 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center">
+              <span className="flex items-center text-white font-bold text-xl">
+                <CarRental className="mr-2" />
+                AutoCars
+              </span>
+            </div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <>
       <nav className="w-full bg-gradient-to-r text-black from-indigo-600 to-purple-600 shadow-lg">
@@ -742,7 +763,7 @@ const redirectToDashboard = () => {
               <Link to={"/"}>
                 <span className="flex items-center text-white font-bold text-xl">
                   <CarRental className="mr-2" />
-                  AutoElite
+                  AutoCars
                 </span>
               </Link>
             </div>
@@ -765,7 +786,7 @@ const redirectToDashboard = () => {
                   <div className="text-white text-sm mr-2">
                     Welcome, {user?.name || user?.email}
                   </div>
-                  {user?.status === "admin" && (
+                  {(user?.status === "admin" || user?.status === "user") && (
                     <button
                       onClick={redirectToDashboard}
                       className="bg-gradient-to-b from-blue-400 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
@@ -912,7 +933,7 @@ const redirectToDashboard = () => {
                     <div className="px-3 py-2 text-white text-sm border-t border-indigo-600">
                       Welcome, {user?.name || user?.email}
                     </div>
-                    {user?.status === "admin" || user?.status === "user" && (
+                    {(user?.status === "admin" || user?.status === "user") && (
                       <button
                         onClick={redirectToDashboard}
                         className="w-full text-left text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
@@ -1042,3 +1063,4 @@ const redirectToDashboard = () => {
   );
 };
 
+export { PrivateRoute };
