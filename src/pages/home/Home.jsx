@@ -41,14 +41,14 @@ export default function Home() {
         <CarSearch />
         <NewFeatures />
         <Products />
-        <Testimonials />
+        {/* <Testimonials /> */}
         <FAQ />
         
         {/* Return to Top Button */}
         <AnimatePresence>
           {showScrollTop && (
             <motion.button
-              className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-violet-400 to-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              className="fixed bottom-6 right-6 bg-gradient-to-br from-violet-400 to-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
               onClick={scrollToTop}
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
