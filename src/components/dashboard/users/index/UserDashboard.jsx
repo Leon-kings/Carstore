@@ -36,8 +36,6 @@ import { Sidebar } from "../components/sidebar/Sidebar";
 
 // Import Sidebar
 
-
-
 const NotificationModal = ({ isOpen, onClose }) => {
   const notifications = [
     {
@@ -191,7 +189,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
 
             {/* Footer */}
             <div className="flex-shrink-0 p-4 border-t">
-              <button 
+              <button
                 onClick={handleMarkAllAsRead}
                 className="w-full py-2 bg-gradient-to-b from-blue-400 to-indigo-400 transition-colors font-medium"
               >
@@ -204,8 +202,6 @@ const NotificationModal = ({ isOpen, onClose }) => {
     </AnimatePresence>
   );
 };
-
-
 
 // ---------------- User Modal ----------------
 const UserModal = ({ isOpen, onClose }) => {
@@ -285,7 +281,6 @@ const UserModal = ({ isOpen, onClose }) => {
                   </div>
                 ))}
               </div>
-
             </div>
           </motion.div>
         </motion.div>
@@ -379,7 +374,7 @@ export const UserDashboard = () => {
               onClick={() => setNotificationOpen(true)}
               className="relative p-2 bg-gradient-to-r from-blue-400 to-indigo-400"
             >
-              <NotificationsIcon className="text-red-400"/>
+              <NotificationsIcon className="text-red-400" />
               <span className="absolute top-0 right-0 w-4 h-4 text-xs rounded-full flex items-center justify-center">
                 3
               </span>

@@ -23,6 +23,7 @@ const PrivateRoute = ({ children, requiredRole = null }) => {
   }
   
   if (!isSignedIn) {
+    toast.info("Please login to access this page");
     return <Navigate to="/" replace />;
   }
   
@@ -44,7 +45,7 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { signIn } = useAuth();
 
@@ -60,6 +61,7 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
         confirmPassword: "",
       });
       setErrors({});
+      setIsLoading(false);
     }
   }, [type, isOpen]);
 
@@ -78,7 +80,6 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    // Only validate phone for registration, not login
     if (!isLogin) {
       if (!formData.phone) {
         newErrors.phone = "Phone number is required";
@@ -110,7 +111,6 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
       [name]: value,
     }));
 
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -125,13 +125,14 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
 
     if (!validateForm()) {
       console.log("Validation failed", errors);
+      toast.error("Please fix the form errors before submitting");
       return;
     }
 
     setIsLoading(true);
+    toast.info(isLogin ? "Signing in..." : "Creating account...");
 
     try {
-      // In a real application, you would send this data to your backend API
       const endpoint = isLogin ? "/posts" : "/posts";
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -147,47 +148,48 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       if (isLogin) {
-        // Check for specific login credentials and determine user status
-        let userStatus = "user"; // Default status
+        let userStatus = "user";
         
         if (formData.email === "admin@example.com" && formData.password === "admin123") {
           userStatus = "admin";
+          toast.success("Welcome back, Admin! Redirecting to dashboard...");
         } else if (formData.email === "user@example.com" && formData.password === "user123") {
           userStatus = "user";
+          toast.success("Welcome back! Redirecting to your dashboard...");
         } else {
-          // For demo purposes, assign random status for other users
           userStatus = Math.random() > 0.5 ? "admin" : "user";
+          toast.success(`Welcome! You've been assigned ${userStatus} role. Redirecting...`);
         }
 
-        // Create user data object
         const userData = {
           email: formData.email,
           status: userStatus,
-          name: formData.name || formData.email.split('@')[0], // Use name or extract from email
+          name: formData.name || formData.email.split('@')[0],
           phone: formData.phone || "Not provided"
         };
 
-        // Sign in using the auth context
         signIn(userData);
         
-        // Show success message
-        toast.success(`Welcome back, ${userData.name}!`);
+        // Close the modal immediately after successful login
+        onClose();
         
-        // Redirect based on user status
+        // Redirect after a short delay to allow modal close animation
         setTimeout(() => {
           if (userStatus === "admin") {
             navigate("/728289/292jh020-7");
           } else {
             navigate("/02jw829/29910");
           }
-        }, 1000);
+        }, 500); // Reduced delay since modal closes immediately
 
       } else {
-        // Registration logic
-        toast.success("Registration successful! Please login.");
+        toast.success("🎉 Registration successful! Please login with your credentials.");
         
-        // Reset form
         setFormData({
           email: "",
           password: "",
@@ -196,19 +198,20 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
           confirmPassword: "",
         });
 
-        // Switch to login modal
+        // Close registration modal and switch to login
         onClose();
         setTimeout(() => {
           onToggleModal("login");
-        }, 300);
+          toast.info("Please login with your new account");
+        }, 500);
       }
 
     } catch (error) {
       console.error("Authentication error:", error);
       toast.error(
         isLogin
-          ? "Login failed. Please try again."
-          : "Registration failed. Please try again."
+          ? "❌ Login failed. Please check your credentials and try again."
+          : "❌ Registration failed. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -219,6 +222,7 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
     onClose();
     setTimeout(() => {
       onToggleModal(isLogin ? "register" : "login");
+      toast.info(`Switching to ${isLogin ? "registration" : "login"} form`);
     }, 300);
   };
 
@@ -270,7 +274,6 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
                   </button>
                 </div>
 
-                {/* Demo credentials info */}
                 {isLogin && (
                   <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-700 font-medium">
@@ -505,6 +508,7 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
                       <Link
                         to="#"
                         className="text-sm text-indigo-600 hover:text-indigo-500"
+                        onClick={() => toast.info("Password reset feature coming soon!")}
                       >
                         Forgot password?
                       </Link>
@@ -538,7 +542,7 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
-                        Processing...
+                        {isLogin ? "Signing In..." : "Creating Account..."}
                       </>
                     ) : (
                       <>{isLogin ? "Sign In" : "Create Account"}</>
@@ -553,7 +557,7 @@ const AuthModal = ({ type, isOpen, onClose, onToggleModal }) => {
                       : "Already have an account? "}
                     <button
                       onClick={handleToggleClick}
-                      className="bg-gradient-to-b from-red-200 to-indigo-300 font-medium"
+                      className="bg-gradient-to-b from-red-200 to-indigo-300 font-medium hover:from-red-300 hover:to-indigo-400 transition duration-300"
                     >
                       {isLogin ? "Sign up" : "Sign in"}
                     </button>
@@ -583,7 +587,6 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const { user, isSignedIn, signOut, isLoading } = useAuth();
 
-  // Navigation links object
   const navLinks = [
     {
       name: "Home",
@@ -710,16 +713,18 @@ export const Navbar = () => {
   const handleLogout = () => {
     signOut();
     setMobileMenuOpen(false);
-    toast.success("Logged out successfully!");
+    toast.success("👋 Logged out successfully! See you soon!");
   };
 
   const redirectToDashboard = () => {
     if (user?.status === "admin") {
       navigate("/728289/292jh020-7");
+      toast.info("🔧 Accessing Admin Dashboard...");
     } else if (user?.status === "user") {
       navigate("/02jw829/29910");
+      toast.info("🚗 Accessing User Dashboard...");
     } else {
-      toast.info("Oops sorry, your request doesn't match any!!");
+      toast.error("❌ Oops sorry, your request doesn't match any role!");
       navigate('/');
     }
     setMobileMenuOpen(false);
@@ -729,13 +734,19 @@ export const Navbar = () => {
     if (modalType === "login") {
       setShowLoginModal(true);
       setShowRegisterModal(false);
+      toast.info("🔐 Please login to continue");
     } else if (modalType === "register") {
       setShowRegisterModal(true);
       setShowLoginModal(false);
+      toast.info("📝 Create your account to get started");
     }
   };
 
-  // Show loading state while authentication is being checked
+  const handleNavLinkClick = (linkName) => {
+    setMobileMenuOpen(false);
+    toast.info(`Navigating to ${linkName} page...`);
+  };
+
   if (isLoading) {
     return (
       <nav className="w-full bg-gradient-to-r text-black from-indigo-600 to-purple-600 shadow-lg">
@@ -760,7 +771,7 @@ export const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link to={"/"}>
+              <Link to={"/"} onClick={() => toast.info("🏠 Going to homepage...")}>
                 <span className="flex items-center text-white font-bold text-xl">
                   <CarRental className="mr-2" />
                   AutoCars
@@ -775,6 +786,7 @@ export const Navbar = () => {
                   key={index}
                   to={link.path}
                   className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                  onClick={() => handleNavLinkClick(link.name)}
                 >
                   {link.icon}
                   {link.name}
@@ -789,15 +801,15 @@ export const Navbar = () => {
                   {(user?.status === "admin" || user?.status === "user") && (
                     <button
                       onClick={redirectToDashboard}
-                      className="bg-gradient-to-b from-blue-400 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                      className="bg-gradient-to-b from-blue-400 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center hover:from-blue-500 hover:to-indigo-500"
                     >
-                      <Dashboard/>
+                      <Dashboard className="mr-1"/>
                       Dashboard
                     </button>
                   )}
                   <button
                     onClick={handleLogout}
-                    className="bg-transparent border bg-gradient-to-l from-blue-400 to-violet-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    className="bg-transparent border bg-gradient-to-l from-blue-400 to-violet-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center hover:from-blue-500 hover:to-violet-500"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -820,8 +832,11 @@ export const Navbar = () => {
               ) : (
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="bg-gradient-to-l from-indigo-400 to-blue-500 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    onClick={() => {
+                      setShowLoginModal(true);
+                      toast.info("🔐 Opening login form...");
+                    }}
+                    className="bg-gradient-to-l from-indigo-400 to-blue-500 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center hover:from-indigo-500 hover:to-blue-600"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -840,8 +855,11 @@ export const Navbar = () => {
                     Login
                   </button>
                   <button
-                    onClick={() => setShowRegisterModal(true)}
-                    className="bg-transparent border bg-gradient-to-b from-blue-500 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center"
+                    onClick={() => {
+                      setShowRegisterModal(true);
+                      toast.info("📝 Opening registration form...");
+                    }}
+                    className="bg-transparent border bg-gradient-to-b from-blue-500 to-indigo-400 px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center hover:from-blue-600 hover:to-indigo-500"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -866,7 +884,10 @@ export const Navbar = () => {
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center">
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => {
+                  setMobileMenuOpen(!mobileMenuOpen);
+                  toast.info(mobileMenuOpen ? "📱 Closing menu" : "📱 Opening menu");
+                }}
                 className="text-white hover:bg-indigo-700 inline-flex items-center justify-center p-2 rounded-md focus:outline-none"
               >
                 {mobileMenuOpen ? (
@@ -921,7 +942,7 @@ export const Navbar = () => {
                     key={index}
                     to={link.path}
                     className="text-white hover:bg-indigo-600 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => handleNavLinkClick(link.name)}
                   >
                     {link.icon}
                     <span className="ml-2">{link.name}</span>
@@ -982,6 +1003,7 @@ export const Navbar = () => {
                       onClick={() => {
                         setShowLoginModal(true);
                         setMobileMenuOpen(false);
+                        toast.info("🔐 Opening login form...");
                       }}
                       className="w-full text-left bg-gradient-to-b from-blue-400 to-indigo-300 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
@@ -1005,6 +1027,7 @@ export const Navbar = () => {
                       onClick={() => {
                         setShowRegisterModal(true);
                         setMobileMenuOpen(false);
+                        toast.info("📝 Opening registration form...");
                       }}
                       className="w-full text-left bg-gradient-to-b from-indigo-400 to-blue-500 block px-3 py-2 rounded-md text-base font-medium transition duration-300 items-center"
                     >
@@ -1058,6 +1081,7 @@ export const Navbar = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        theme="colored"
       />
     </>
   );
