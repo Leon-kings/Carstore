@@ -55,7 +55,7 @@ export const UndefinedPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 flex items-center justify-center p-4">
       <motion.div
         className="max-w-2xl w-full text-center"
         variants={containerVariants}
@@ -145,14 +145,14 @@ export const UndefinedPage = () => {
 
         {/* Content */}
         <motion.h1 
-          className="text-6xl md:text-8xl font-bold text-gray-800 mb-4"
+          className="text-6xl md:text-8xl font-bold text-red-800 mb-4"
           variants={itemVariants}>
         
           404
         </motion.h1>
         
         <motion.h2 
-          className="text-2xl md:text-3xl font-semibold text-gray-700 mb-4"
+          className="text-2xl md:text-3xl font-semibold text-red-500 mb-4"
           variants={itemVariants}
         >
           Oops! Page Not Found
