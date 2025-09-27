@@ -46,13 +46,13 @@ export const Sidebar = () => {
   }, []);
 
   const menuItems = [
-    { name: "Dashboard", icon: <DashboardIcon />, url: "/728289/292jh020-7" },
-    { name: "Testimony", icon: <FormatQuote />, url: "/dashboard/728981" },
-    { name: "Users", icon: <PersonIcon />, url: "/dashboard/78292" },
-    { name: "Orders", icon: <NotificationsIcon />, url: "/dashboard/72891" },
-    { name: "Store", icon: <Store />, url: "/dashboard/7281/191" },
-    { name: "Balance", icon: <Balance />, url: "/dashboard/payment" },
-    { name: "Settings", icon: <SettingsIcon />, url: "/dashboard/02000" },
+    { name: "Dashboard", icon: <DashboardIcon />, url: "/02jw829/29910" },
+    { name: "Testimony", icon: <FormatQuote />, url: "/8292/Testimony" },
+    { name: "Users", icon: <PersonIcon /> },
+    { name: "Orders", icon: <NotificationsIcon />, url: "/8292/contacts" },
+    { name: "Store", icon: <Store />, url: "/8292/cars/post" },
+    { name: "Balance", icon: <Balance />, url: "/8292/payments" },
+    { name: "Settings", icon: <SettingsIcon />, url: "/829/hu0/settings" },
   ];
 
   const toggleSidebar = () => {

@@ -30,7 +30,11 @@ import { SubscriptionManagement } from "./components/dashboard/admin/management/
 import { UserDashboard } from "./components/dashboard/users/index/UserDashboard";
 import { toast } from "react-toastify";
 import { UndefinedPage } from "./notfound/Notfound";
-
+import { UserTestimonyManagement } from "./components/dashboard/users/components/testimony/UserTestimonyManagement";
+import { UserCarsDashboard } from "./components/dashboard/users/components/create/UserCarsManagement";
+import { UserContactManagement } from "./components/dashboard/users/components/contact/UserContactManagement";
+import { UserPaymentManagement } from "./components/dashboard/users/components/payment/UserPaymentManagement";
+import { UserSettings } from "./components/dashboard/users/components/settings/UserSetting";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -38,16 +42,16 @@ const AuthContext = createContext();
 // Private Route Component
 const PrivateRoute = ({ children, requiredRole = null }) => {
   const { isSignedIn, user } = useAuth();
-  
+
   if (!isSignedIn) {
     return <Navigate to="/" replace />;
   }
-  
+
   if (requiredRole && user?.status !== requiredRole) {
     toast.error("You don't have permission to access this page");
     return <Navigate to="/" replace />;
   }
-  
+
   return children;
 };
 
@@ -123,7 +127,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
-                    <Route
+          <Route
             path="/02jw829/29910"
             element={
               <PrivateRoute>
@@ -134,57 +138,97 @@ export default function App() {
           <Route
             path="/dashboard/78292"
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <UserManagement />
-              // </PrivateRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/dashboard/02000"
             element={
-              // <PrivateRoute>
-              <Settings />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <Settings />
+              </PrivateRoute>
             }
           />
           <Route
             path="/dashboard/7281/191"
             element={
-              // <PrivateRoute>
-              <CarsDashboard />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <CarsDashboard />
+              </PrivateRoute>
             }
           />
           <Route
             path="/dashboard/72891"
             element={
-              // <PrivateRoute>
-              <ContactManagement />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <ContactManagement />
+              </PrivateRoute>
             }
           />
           <Route
             path="/dashboard/728981"
             element={
-              // <PrivateRoute>
-              <TestimonyManagement />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <TestimonyManagement />
+              </PrivateRoute>
             }
           />
-                    <Route
+          <Route
             path="/dashboard/payment"
             element={
-              // <PrivateRoute>
-              <PaymentManagement />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <PaymentManagement />
+              </PrivateRoute>
             }
           />
-                              <Route
+          <Route
             path="/dashboard/subscription"
             element={
-              // <PrivateRoute>
-              <SubscriptionManagement />
-              // </PrivateRoute>
+              <PrivateRoute>
+                <SubscriptionManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/8292/Testimony"
+            element={
+              <PrivateRoute>
+                <UserTestimonyManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/8292/cars/post"
+            element={
+              <PrivateRoute>
+                <UserCarsDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/8292/contacts"
+            element={
+              <PrivateRoute>
+                <UserContactManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/8292/payments"
+            element={
+              <PrivateRoute>
+                <UserPaymentManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/829/hu0/settings"
+            element={
+              <PrivateRoute>
+                <UserSettings />
+              </PrivateRoute>
             }
           />
         </Routes>
